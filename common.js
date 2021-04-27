@@ -1,12 +1,6 @@
 let file = null;
 let arrayDownloaded = null;
 
-function chatlog(msg) {
-    chatelement = document.getElementById('chatlog');
-    chatelement.innerHTML += '<p>[' + new Date() + '] ' + msg + '</p>';
-    chatelement.scrollTop = chatelement.scrollHeight;
-}
-
 function createPeerConnection(lasticecandidate) {
     configuration = {
         iceServers: [{
@@ -46,7 +40,7 @@ function handleiceconnectionstatechange(event) {
 
 function datachannelopen() {
     console.log('datachannelopen');
-    chatlog('connected');
+    // chatlog('connected');
     document.getElementById('chatinput').disabled = false;
     document.getElementById('chatbutton').disabled = false;
 }
@@ -106,6 +100,6 @@ function chatbuttonclick() {
     textelement = document.getElementById('chatinput');
     text = textelement.value;
     dataChannel.send(text);
-    chatlog(text);
+    // chatlog(text);
     textelement.value = '';
 }

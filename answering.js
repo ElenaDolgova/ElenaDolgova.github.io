@@ -21,18 +21,6 @@ function clickofferpasted() {
         });
 }
 
-// function clickofferpasted() {
-//   console.log('clickremoteoffer');
-//   document.getElementById('buttonofferpasted').disabled = true;
-//   peerConnection = createPeerConnection(lasticecandidate);
-//   peerConnection.ondatachannel = handledatachannel;
-//   textelement = document.getElementById('textoffer');
-//   textelement.readOnly = true;
-//   offer = JSON.parse(textelement.value);
-//   setRemotePromise = peerConnection.setRemoteDescription(offer);
-//   setRemotePromise.then(setRemoteDone, setRemoteFailed);
-// }
-
 function setRemoteDone() {
     console.log('setRemoteDone');
     createAnswerPromise = peerConnection.createAnswer();
@@ -78,13 +66,6 @@ function lasticecandidate() {
             textelement.value = data.id;
         });
 }
-
-// function lasticecandidate() {
-//   console.log('lasticecandidate');
-//   textelement = document.getElementById('textanswer');
-//   answer = peerConnection.localDescription
-//   textelement.value = JSON.stringify(answer);
-// }
 
 function handledatachannel(event) {
     console.log('handledatachannel');

@@ -5,9 +5,9 @@ function clickcreateoffer() {
     document.getElementById('buttoncreateoffer').disabled = true;
     document.getElementById('spanoffer').classList.toggle('invisible');
     peerConnection = createPeerConnection(lasticecandidate);
-    dataChannel = peerConnection.createDataChannel('chat');
-    dataChannel.onopen = datachannelopen;
-    dataChannel.onmessage = datachannelmessage;
+    dataChannel = peerConnection.createDataChannel('dataChannel');
+    dataChannel.onopen = datachannelopen; // тут
+    dataChannel.onmessage = datachannelmessage; //тут
     createOfferPromise = peerConnection.createOffer();
     createOfferPromise.then(createOfferDone, createOfferFailed);
 }
@@ -47,14 +47,6 @@ function lasticecandidate() {
     document.getElementById('buttonoffersent').disabled = false;
 }
 
-// function lasticecandidate() {
-//   console.log('lasticecandidate');
-//   textelement = document.getElementById('textoffer');
-//   offer = peerConnection.localDescription;
-//   textelement.value = JSON.stringify(offer);
-//   document.getElementById('buttonoffersent').disabled = false;
-// }
-
 function clickoffersent() {
     console.log('clickoffersent');
     document.getElementById('spananswer').classList.toggle('invisible');
@@ -63,6 +55,7 @@ function clickoffersent() {
 
 function clickanswerpasted() {
     console.log('clickanswerpasted');
+    document.getElementById('sendingFiles').classList.toggle('invisible');
     document.getElementById('buttonanswerpasted').disabled = true;
     textelement = document.getElementById('textanswer');
     textelement.readOnly = true;
@@ -78,17 +71,6 @@ function clickanswerpasted() {
             setRemotePromise.then(setRemoteDone, setRemoteFailed);
         });
 }
-
-// function clickanswerpasted() {
-//   console.log('clickanswerpasted');
-//   document.getElementById('sendingFiles').classList.toggle('invisible');
-//   // document.getElementById('buttonanswerpasted').disabled = true;
-//   textelement = document.getElementById('textanswer');
-//   textelement.readOnly = true;
-//   answer = JSON.parse(textelement.value);
-//   setRemotePromise = peerConnection.setRemoteDescription(answer);
-//   setRemotePromise.then(setRemoteDone, setRemoteFailed);
-// }
 
 function setRemoteDone() {
     console.log('setRemoteDone');
