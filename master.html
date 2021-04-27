@@ -6,62 +6,48 @@
     <title>offering webrtc without signaling server demo</title>
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="common.js"></script>
-    <script src="offering.js"></script>
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script src="master.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
             integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
     <script src="script.js"></script>
-    <!--<script src="rtc.js"></script>-->
 </head>
 
 <body>
-
-<h1>webrtc without signaling server demo.</h1>
-
-<div id="chatlog" class="chatlog"></div>
-<input id="chatinput" type="text" placeholder="type here" disabled>
-<button id="chatbutton" onclick="chatbuttonclick()" disabled>send</button>
-
+<h1>Master</h1>
 <p>
-    offering a connection to a peer
-</p>
-
-<p>
-    <button id="buttoncreateoffer" onclick="clickcreateoffer()">create offer</button>
+    <button id="button_create_masterId" onclick="clickCreateMasterId()">Создать masterId для нового соединения</button>
 </p>
 
 <span id="spanoffer" class="invisible">
 <p>
-please copy the offer below and send it to a peer.
+Скопируйте masterId и используйте его на странице peer, чтобы получить peerId
 </p>
-<textarea id="textoffer" readonly
-        placeholder="please wait a few seconds"></textarea>
-<button id="buttonoffersent" onclick="clickoffersent()" disabled>offer sent</button>
+<textarea id="text_masterId" readonly placeholder="masterId"></textarea>
+<button id="masterId_sent_to_peer" onclick="masterIdSentToPeer()" disabled>masterId отправлен</button>
 </span>
 
-<span id="spananswer" class="invisible">
+<span id="span_master" class="invisible">
 <p>
-please wait for peer to give answer and paste it below
+Скопируйте peerId со страницы peer и используйте ниже
 </p>
-<textarea id="textanswer"
-        placeholder="please paste answer from responding side"></textarea>
-<button id="buttonanswerpasted" onclick="clickanswerpasted()">answer pasted</button>
+<textarea id="text_peerId"></textarea>
+<button id="clickPeerPastedButton" onclick="clickPeerPasted()">Обработать peerId</button>
 </span>
 
 <span id="sendingFiles" class="invisible">
 <!--<h1>Peers: </h1>-->
     <!--<div>todo</div>-->
-<h2>Enter the numbers separated by space</h2>
+<h2>Введите числа, разделенные пробелом</h2>
 <input type="string" id="numbers" onclick="enableButtonSendFilesToRemotes()">
-<h2>Select WASM file:</h2>
+<h2>Выберите wasm файл:</h2>
 <form>
     <div class="form-group">
         <input type="file" class="form-control-file" id="inputFile" onclick="enableButtonSendFilesToRemotes()">
         <button id="sendFilesToRemoteButton" type="button" class="btn btn-default" onclick="sendData()" disabled>
-            Send files to remote
+            Отправить файл на peers
         </button>
         <button id="runWasmButton" type="button" class="btn btn-default" onclick="runWasmFile()" disabled>
-            Run WASM script
+             Запустить обработку wasm файла
         </button>
     </div>
 </form>

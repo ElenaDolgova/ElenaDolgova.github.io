@@ -1,13 +1,13 @@
 const workerUrl = 'https://webrtc.ms-elena-dolgova.workers.dev';
 
-function clickcreateoffer() {
-    console.log('clickcreateoffer');
-    document.getElementById('buttoncreateoffer').disabled = true;
+function clickCreateMasterId() {
+    console.log('clickCreateOffer');
+    document.getElementById('button_create_masterId').disabled = true;
     document.getElementById('spanoffer').classList.toggle('invisible');
     peerConnection = createPeerConnection(lasticecandidate);
     dataChannel = peerConnection.createDataChannel('dataChannel');
-    dataChannel.onopen = datachannelopen; // тут
-    dataChannel.onmessage = datachannelmessage; //тут
+    // dataChannel.onopen = dataChannelOpen; // тут
+    dataChannel.onmessage = sendFileAndPartArray; //тут
     createOfferPromise = peerConnection.createOffer();
     createOfferPromise.then(createOfferDone, createOfferFailed);
 }
@@ -34,50 +34,46 @@ function setLocalFailed(reason) {
 
 function lasticecandidate() {
     console.log('lasticecandidate');
-    textelement = document.getElementById('textoffer');
-    offer = peerConnection.localDescription;
+    textMasterId = document.getElementById('text_masterId');
+    masterId = peerConnection.localDescription;
     fetch(workerUrl + '/makeOffer', {
         method: 'post',
-        body: JSON.stringify(offer)
+        body: JSON.stringify(masterId)
     })
         .then(data => data.json())
         .then(data => {
-            textelement.value = data.id;
+            textMasterId.value = data.id;
         });
-    document.getElementById('buttonoffersent').disabled = false;
+    document.getElementById('masterId_sent_to_peer').disabled = false;
 }
 
-function clickoffersent() {
-    console.log('clickoffersent');
-    document.getElementById('spananswer').classList.toggle('invisible');
-    document.getElementById('buttonoffersent').disabled = true;
+function masterIdSentToPeer() {
+    console.log('masterIdSentToPeer');
+    document.getElementById('span_master').classList.toggle('invisible');
+    document.getElementById('masterId_sent_to_peer').disabled = true;
 }
 
-function clickanswerpasted() {
-    console.log('clickanswerpasted');
+function clickPeerPasted() {
+    console.log('clickPeerPasted');
     document.getElementById('sendingFiles').classList.toggle('invisible');
-    document.getElementById('buttonanswerpasted').disabled = true;
-    textelement = document.getElementById('textanswer');
-    textelement.readOnly = true;
+    document.getElementById('clickPeerPastedButton').disabled = true;
+    peerIdValue = document.getElementById('text_peerId');
+    peerIdValue.readOnly = true;
     fetch(workerUrl + '/getAnswer', {
         method: 'post',
         body: JSON.stringify({
-            id: textelement.value
+            id: peerIdValue.value
         })
     })
         .then((data) => data.json())
         .then((data) => {
             setRemotePromise = peerConnection.setRemoteDescription(data);
-            setRemotePromise.then(setRemoteDone, setRemoteFailed);
+            setRemotePromise.then(function () {
+                console.log('clickPeerPasted done');
+            }, function (reason) {
+                console.log('clickPeerPasted failed');
+                console.log(reason);
+            });
         });
+    // todo добавить отображение peerId
 }
-
-function setRemoteDone() {
-    console.log('setRemoteDone');
-}
-
-function setRemoteFailed(reason) {
-    console.log('setRemoteFailed');
-    console.log(reason);
-}
-

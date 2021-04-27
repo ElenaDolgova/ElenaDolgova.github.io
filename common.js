@@ -38,15 +38,15 @@ function handleiceconnectionstatechange(event) {
     console.log('ice connection state: ' + event.target.iceConnectionState);
 }
 
-function datachannelopen() {
-    console.log('datachannelopen');
+function dataChannelOpen() {
+    // console.log('dataChannelOpen');
     // chatlog('connected');
-    document.getElementById('chatinput').disabled = false;
-    document.getElementById('chatbutton').disabled = false;
+    // document.getElementById('chat_input').disabled = false;
+    // document.getElementById('chat_button').disabled = false;
 }
 
-function datachannelmessage(message) {
-    console.log('datachannelmessage');
+function sendFileAndPartArray(message) {
+    console.log('sendFileAndPartArray');
     data = message.data;
     console.log(message);
     let jsonData = JSON.parse(data);
@@ -95,11 +95,11 @@ function datachannelmessage(message) {
     }
 }
 
-function chatbuttonclick() {
-    console.log('chatbuttonclick');
-    textelement = document.getElementById('chatinput');
-    text = textelement.value;
-    dataChannel.send(text);
-    // chatlog(text);
-    textelement.value = '';
-}
+// function chatbuttonclick() {
+//     console.log('chatbuttonclick');
+//     textelement = document.getElementById('chat_input');
+//     text = textelement.value;
+//     dataChannel.send(text);
+//     // chatlog(text);
+//     textelement.value = '';
+// }
