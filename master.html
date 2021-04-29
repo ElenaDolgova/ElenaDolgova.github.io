@@ -4,11 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>offering webrtc without signaling server demo</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
     <script src="common.js"></script>
     <script src="master.js"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
-            integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
     <script src="script.js"></script>
 </head>
 
@@ -18,37 +15,27 @@
     <button id="button_create_masterId" onclick="clickCreateMasterId()">Создать masterId для нового соединения</button>
 </p>
 
-<span id="spanoffer" class="invisible">
 <p>
-Скопируйте masterId и используйте его на странице peer, чтобы получить peerId
+    Скопируйте masterId и используйте его на странице peer, чтобы получить peerId
 </p>
 <textarea id="text_masterId" readonly placeholder="masterId"></textarea>
-<button id="masterId_sent_to_peer" onclick="masterIdSentToPeer()" disabled>masterId отправлен</button>
-</span>
+<button id="masterId_sent_to_peer">masterId отправлен</button>
 
-<span id="span_master" class="invisible">
 <p>
-Скопируйте peerId со страницы peer и используйте ниже
+    Скопируйте peerId со страницы peer и используйте ниже
 </p>
 <textarea id="text_peerId"></textarea>
 <button id="clickPeerPastedButton" onclick="clickPeerPasted()">Обработать peerId</button>
-</span>
 
-<span id="sendingFiles" class="invisible">
-<!--<h1>Peers: </h1>-->
-    <!--<div>todo</div>-->
 <h2>Введите числа, разделенные пробелом</h2>
-<input type="string" id="numbers" onclick="enableButtonSendFilesToRemotes()">
+<input type="string" id="numbers" onclick="inputNumbers()">
 <h2>Выберите wasm файл:</h2>
 <form>
     <div class="form-group">
-        <input type="file" class="form-control-file" id="inputFile" onclick="enableButtonSendFilesToRemotes()">
-        <button id="sendFilesToRemoteButton" type="button" class="btn btn-default" onclick="sendData()" disabled>
+        <input type="file" class="form-control-file" id="inputFile">
+        <button id="sendFilesToRemoteButton" type="button" class="btn btn-default" onclick="sendData()">
             Отправить файл на peers
-        </button>
-        <button id="runWasmButton" type="button" class="btn btn-default" onclick="runWasmFile()" disabled>
-             Запустить обработку wasm файла
         </button>
     </div>
 </form>
-</span>
+<p id="answerMaster"></p>

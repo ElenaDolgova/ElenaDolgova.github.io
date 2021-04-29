@@ -1,50 +1,25 @@
 const workerUrl = 'https://webrtc.ms-elena-dolgova.workers.dev';
+let arrayDownloaded = null;
+let dataChannel;
+let peerConnection;
 
 function clickMasterIdPasted() {
     console.log('clickMasterIdPasted');
-    document.getElementById('clickMasterIdPastedButton').disabled = true;
     peerConnection = createPeerConnection(createPeerId);
-    peerConnection.ondatachannel = sendAnswerFromFunction;
-    offerPastedBlock = document.getElementById('masterId_pasted');
-    offerPastedBlock.readOnly = true;
-    offerId = offerPastedBlock.value;
-    fetch(workerUrl + '/getOffer', {
-        method: 'post',
-        body: JSON.stringify({
-            id: offerId
-        })
-    })
-        .then((data) => data.json())
-        .then((data) => {
-            setRemotePromise = peerConnection.setRemoteDescription(data);
-            setRemotePromise.then(
-                setMasterConnection,
-                function (reason) {
-                    console.log('clickOfferPasted failed');
-                    console.log(reason);
-                });
-        });
+    peerConnection.ondatachannel = calculateAndSendAnswerFromFunction;
+    getById(document.getElementById('masterId_pasted').value, setMasterConnection, peerConnection);
 }
 
-function createPeerId() {
+async function createPeerId() {
     console.log('createPeerId');
-    textelement = document.getElementById('peerIdText');
-    answer = peerConnection.localDescription;
-    fetch(workerUrl + '/makeAnswer', {
-        method: 'post',
-        body: JSON.stringify(answer)
-    })
-        .then(data => data.json())
-        .then(data => {
-            textelement.value = data.id;
-        });
+    let request = peerConnection.localDescription;
+    document.getElementById('text_peerId').value = await createId(request);
 }
 
-function sendAnswerFromFunction(event) {
-    console.log('sendAnswerFromFunction');
+function calculateAndSendAnswerFromFunction(event) {
+    console.log('calculateAndSendAnswerFromFunction');
     dataChannel = event.channel;
-    // dataChannel.onopen = dataChannelOpen;
-    dataChannel.onmessage = sendFileAndPartArray; // тут ответ от работы функции о сумме
+    dataChannel.onmessage = processMessage; // тут ответ от работы функции о сумме
 }
 
 function setMasterConnection() {
@@ -67,5 +42,29 @@ function createMasterConnection(answer) {
             console.log('createMasterConnection failed');
             console.log(reason);
         });
-    document.getElementById('span_peer').classList.toggle('invisible');
+}
+
+function processMessage(message) {
+    console.log('processMessage');
+    let data = message.data;
+    console.log(message);
+    let jsonData = JSON.parse(data);
+    if (jsonData.type === 'array') {
+        console.log('I am array');
+        arrayDownloaded = new Int32Array(jsonData.body);
+        console.log(arrayDownloaded);
+    } else if (jsonData.type === 'file') {
+        WebAssembly
+            .instantiate(Uint8Array.from(atob(jsonData.body), c => c.charCodeAt(0)), {})
+            .then(obj => {
+                    console.log('inside');
+                    const array = new Int32Array(obj.instance.exports.memory.buffer, 0, arrayDownloaded.length);
+                    array.set(arrayDownloaded);
+                    let result = obj.instance.exports.fun(array.byteOffset, array.length);
+                    console.log(result);
+                    // alert(result);
+                    dataChannel.send(result);
+                }
+            );
+    }
 }

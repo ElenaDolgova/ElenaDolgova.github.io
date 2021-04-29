@@ -1,105 +1,61 @@
 let file = null;
-let arrayDownloaded = null;
 
-function createPeerConnection(lasticecandidate) {
-    configuration = {
+function createPeerConnection(candidateFunction) {
+    let configuration = {
         iceServers: [{
-            urls: 'stun:stun.stunprotocol.org'
+            urls: 'stun:stun.stunprotocol.org' // что тут происходит?
         }]
     };
+    let peerConnection;
     try {
         peerConnection = new RTCPeerConnection(configuration);
     } catch (err) {
-        chatlog('error: ' + err);
+        console.log('createPeerConnection failed');
     }
-    peerConnection.onicecandidate = handleicecandidate(lasticecandidate);
-    peerConnection.onconnectionstatechange = handleconnectionstatechange;
-    peerConnection.oniceconnectionstatechange = handleiceconnectionstatechange;
+    peerConnection.onicecandidate = function (event) {
+        if (event.candidate != null) {
+            console.log('new ICE candidate');
+        } else {
+            console.log('all ICE candidates');
+            candidateFunction(peerConnection);
+        }
+    };
+    peerConnection.onconnectionstatechange = function (event) {
+        console.log('peerConnection.onconnectionstatechange');
+        console.log(event);
+    };
+    peerConnection.oniceconnectionstatechange = function (event) {
+        console.log('ice connection state: ' + event.target.iceConnectionState);
+    };
     return peerConnection;
 }
 
-function handleicecandidate(lasticecandidate) {
-    return function (event) {
-        if (event.candidate != null) {
-            console.log('new ice candidate');
-        } else {
-            console.log('all ice candidates');
-            lasticecandidate();
-        }
-    };
+async function createId(request) {
+    return fetch(workerUrl + '/createId', {
+        method: 'post',
+        body: JSON.stringify(request)
+    })
+        .then(data => data.json())
+        .then(data => {
+            return data.id;
+        });
 }
 
-function handleconnectionstatechange(event) {
-    console.log('handleconnectionstatechange');
-    console.log(event);
+function getById(id, connectionFunction, peerConnection) {
+    fetch(workerUrl + '/getById', {
+        method: 'post',
+        body: JSON.stringify({
+            id: id
+        })
+    })
+        .then(data => data.json())
+        .then(data => {
+            let setRemotePromise = peerConnection.setRemoteDescription(data);
+            setRemotePromise.then(
+                connectionFunction,
+                function (reason) {
+                    console.log('peerConnection.setRemoteDescription failed');
+                    console.log(reason);
+                });
+        });
 }
-
-function handleiceconnectionstatechange(event) {
-    console.log('ice connection state: ' + event.target.iceConnectionState);
-}
-
-function dataChannelOpen() {
-    // console.log('dataChannelOpen');
-    // chatlog('connected');
-    // document.getElementById('chat_input').disabled = false;
-    // document.getElementById('chat_button').disabled = false;
-}
-
-function sendFileAndPartArray(message) {
-    console.log('sendFileAndPartArray');
-    data = message.data;
-    console.log(message);
-    let jsonData = JSON.parse(data);
-    if (jsonData.type === 'array') {
-        console.log('I am array');
-        arrayDownloaded = new Int32Array(jsonData.body);
-        chatlog(arrayDownloaded);
-        console.log(arrayDownloaded);
-    } else if (jsonData.type === 'file') {
-        //let blob = new Blob([jsonData.body]);
-        WebAssembly
-            .instantiate(Uint8Array.from(atob(jsonData.body), c => c.charCodeAt(0)), {})
-            .then(obj => {
-                    console.log('inside');
-                    const array = new Int32Array(obj.instance.exports.memory.buffer, 0, arrayDownloaded.length);
-                    array.set(arrayDownloaded);
-                    const result = obj.instance.exports.fun(array.byteOffset, array.length);
-                    alert(result);
-                }
-            );
-        // } else {
-        /*let blob = new Blob([jsonData.body]);
-        console.log(blob);
-        let reader = new FileReader();
-        reader.onload = function (event) {
-            console.log(event.target.result);
-            WebAssembly
-                .instantiate(event.target.result, {})
-                .then(obj => {
-                        console.log('inside');
-                        const array = new Int32Array(obj.instance.exports.memory.buffer, 0, arrayDownloaded.length);
-                        array.set(arrayDownloaded);
-                        const result = obj.instance.exports.fun(array.byteOffset, array.length);
-                        alert(result);
-                    }
-                );
-        };
-        reader.readAsArrayBuffer(blob);*/
-        // const a = document.createElement('a');
-        // const url = window.URL.createObjectURL(blob);
-        // a.href = url;
-        // a.download = dataChannel.label;
-        // a.click();
-        // window.URL.revokeObjectURL(url);
-        // a.remove();
-    }
-}
-
-// function chatbuttonclick() {
-//     console.log('chatbuttonclick');
-//     textelement = document.getElementById('chat_input');
-//     text = textelement.value;
-//     dataChannel.send(text);
-//     // chatlog(text);
-//     textelement.value = '';
-// }

@@ -1,79 +1,60 @@
 const workerUrl = 'https://webrtc.ms-elena-dolgova.workers.dev';
 
+// тут хранить информацию о всех
+let datachannelArray = [];
+let peerConnection;
+let sumFromPeers = [];
+
 function clickCreateMasterId() {
-    console.log('clickCreateOffer');
-    document.getElementById('button_create_masterId').disabled = true;
-    document.getElementById('spanoffer').classList.toggle('invisible');
-    peerConnection = createPeerConnection(lasticecandidate);
-    dataChannel = peerConnection.createDataChannel('dataChannel');
-    // dataChannel.onopen = dataChannelOpen; // тут
-    dataChannel.onmessage = sendFileAndPartArray; //тут
-    createOfferPromise = peerConnection.createOffer();
-    createOfferPromise.then(createOfferDone, createOfferFailed);
-}
-
-function createOfferDone(offer) {
-    console.log('createOfferDone');
-    setLocalPromise = peerConnection.setLocalDescription(offer);
-    setLocalPromise.then(setLocalDone, setLocalFailed);
-}
-
-function createOfferFailed(reason) {
-    console.log('createOfferFailed');
-    console.log(reason);
-}
-
-function setLocalDone() {
-    console.log('setLocalDone');
-}
-
-function setLocalFailed(reason) {
-    console.log('setLocalFailed');
-    console.log(reason);
-}
-
-function lasticecandidate() {
-    console.log('lasticecandidate');
-    textMasterId = document.getElementById('text_masterId');
-    masterId = peerConnection.localDescription;
-    fetch(workerUrl + '/makeOffer', {
-        method: 'post',
-        body: JSON.stringify(masterId)
-    })
-        .then(data => data.json())
-        .then(data => {
-            textMasterId.value = data.id;
+    console.log('clickCreateMasterId');
+    document.getElementById('text_masterId').value = '';
+    peerConnection = createPeerConnection(createMasterId);
+    let dataChannel = peerConnection.createDataChannel(document.getElementById('text_masterId').value);
+    dataChannel.onmessage = processMessageFromPeer;
+    let createOfferPromise = peerConnection.createOffer();
+    createOfferPromise.then(function (offer) {
+        peerConnection.setLocalDescription(offer).then(function () {
+            console.log('createOffer done');
+        }, function (reason) {
+            console.log('createOffer Failed');
+            console.log(reason);
         });
-    document.getElementById('masterId_sent_to_peer').disabled = false;
+    }, function (reason) {
+        console.log('createOfferFailed');
+        console.log(reason);
+    });
+    datachannelArray.push(dataChannel);
 }
 
-function masterIdSentToPeer() {
-    console.log('masterIdSentToPeer');
-    document.getElementById('span_master').classList.toggle('invisible');
-    document.getElementById('masterId_sent_to_peer').disabled = true;
+async function createMasterId(peerConnection) {
+    console.log('createMasterId');
+    let masterIdRequest = peerConnection.localDescription;
+    let masterId = await createId(masterIdRequest);
+    document.getElementById('text_masterId').value = masterId;
+    return masterId;
 }
 
 function clickPeerPasted() {
     console.log('clickPeerPasted');
-    document.getElementById('sendingFiles').classList.toggle('invisible');
-    document.getElementById('clickPeerPastedButton').disabled = true;
-    peerIdValue = document.getElementById('text_peerId');
-    peerIdValue.readOnly = true;
-    fetch(workerUrl + '/getAnswer', {
-        method: 'post',
-        body: JSON.stringify({
-            id: peerIdValue.value
-        })
-    })
-        .then((data) => data.json())
-        .then((data) => {
-            setRemotePromise = peerConnection.setRemoteDescription(data);
-            setRemotePromise.then(function () {
-                console.log('clickPeerPasted done');
-            }, function (reason) {
-                console.log('clickPeerPasted failed');
-                console.log(reason);
-            });
-        });
-    // todo добавить отображение peerId
+    getById(document.getElementById('text_peerId').value,
+        function () {
+            console.log('clickPeerPasted done');
+        },
+        peerConnection
+    );
 }
+
+function processMessageFromPeer(message) {
+    console.log('processMessageFromPeer');
+    console.log(message);
+    sumFromPeers.push(parseInt(message.data));
+    if (sumFromPeers.length === datachannelArray.length) {
+        runWasmFile(sumFromPeers);
+    }
+}
+
+function inputNumbers() {
+    sumFromPeers = [];
+}
+
+
