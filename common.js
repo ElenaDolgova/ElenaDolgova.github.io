@@ -3,7 +3,7 @@ let file = null;
 function createPeerConnection(candidateFunction) {
     let configuration = {
         iceServers: [{
-            urls: 'stun:stun.stunprotocol.org' // что тут происходит?
+            urls: 'stun:stun.stunprotocol.org'
         }]
     };
     let peerConnection;
